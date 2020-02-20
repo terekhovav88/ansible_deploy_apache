@@ -1,0 +1,22 @@
+---
+# tasks file for deploy_apache_web
+- block: #### Install for RPM based ####
+    - name: Install Apache
+      yum: name=httpd state=latest
+    - name: Start Apache and enable
+      service: name=httpd state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: generate index
+  template: src=index.j2 dest={{ destin_folder }}/index.html mode=0555
+  notify:
+    - Restart Apache RedHat
+
+- name: copy files to web server
+  copy: src={{ item }} dest={{ destin_folder }} mode=0555
+  loop:
+     - "auth.png"
+     - "scr.png"
+     - "scr2.png"
+  notify:
+    - Restart Apache RedHat
